@@ -1,0 +1,22 @@
+# Node.js (Backend)
+backend/node_modules/
+backend/.env
+backend/dist/
+backend/build/
+backend/*.log
+backend/.DS_Store
+
+# React (Frontend)
+frontend/node_modules/
+frontend/.env
+frontend/.DS_Store
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/.parcel-cache/
+frontend/*.log
+
+# General (Root)
+.DS_Store
+.env
+*.log
