@@ -1,7 +1,7 @@
 import supabase from "../supabaseClient";
 
 
-export default function SignWithGoogle() {
+export default function SignWithGoogle(props) {
   const GoogleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -25,7 +25,7 @@ export default function SignWithGoogle() {
         alt="Google Logo"
         className="w-6 h-6"
       />
-      <span className="text-gray-700 font-medium">Sign in with Google</span>
+      <span className="text-gray-700 font-medium">{props.title}</span>
     </button>
 
   );
