@@ -1,0 +1,103 @@
+-- CREATE TABLE Users (
+--     user_id SERIAL PRIMARY KEY,
+--     name VARCHAR(255) NOT NULL,
+--     email VARCHAR(255) UNIQUE NOT NULL,
+--     password_hash VARCHAR(255) NOT NULL,
+--     profile_image TEXT DEFAULT NULL,
+--     role VARCHAR(20) CHECK (role IN ('student', 'admin')) DEFAULT 'student',
+--     auth_provider TEXT DEFAULT 'email',
+--     auth_id TEXT UNIQUE,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- CREATE TABLE Courses (
+--     course_id SERIAL PRIMARY KEY,
+--     title VARCHAR(255) NOT NULL,
+--     description TEXT,
+--     difficulty VARCHAR(20) CHECK (difficulty IN ('beginner', 'intermediate', 'advanced')) NOT NULL,
+--     category VARCHAR(100),
+--     course_thumbnail TEXT DEFAULT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+
+-- CREATE TABLE Lessons (
+--     lesson_id SERIAL PRIMARY KEY,
+--     course_id INT NOT NULL,
+--     title VARCHAR(255) NOT NULL,
+--     content TEXT,
+--     video_url TEXT DEFAULT NULL,
+--     FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE Skills (
+--     skill_id SERIAL PRIMARY KEY,
+--     skill_name VARCHAR(100) UNIQUE NOT NULL
+-- );
+
+-- CREATE TABLE Course_Skills (
+--     course_id INT NOT NULL,
+--     skill_id INT NOT NULL,
+--     PRIMARY KEY (course_id, skill_id),
+--     FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE,
+--     FOREIGN KEY (skill_id) REFERENCES Skills(skill_id) ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE User_Skills (
+--     user_id INT NOT NULL,
+--     skill_id INT NOT NULL,
+--     proficiency_level VARCHAR(20) CHECK (proficiency_level IN ('beginner', 'intermediate', 'expert')) DEFAULT 'beginner',
+--     PRIMARY KEY (user_id, skill_id),
+--     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+--     FOREIGN KEY (skill_id) REFERENCES Skills(skill_id) ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE Enrollments (
+--     enrollment_id SERIAL PRIMARY KEY,
+--     user_id INT NOT NULL,
+--     course_id INT NOT NULL,
+--     status VARCHAR(20) CHECK (status IN ('in_progress', 'completed')) DEFAULT 'in_progress',
+--     enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+--     FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE Learning_Progress (
+--     progress_id SERIAL PRIMARY KEY,
+--     user_id INT NOT NULL,
+--     lesson_id INT NOT NULL,
+--     completed BOOLEAN DEFAULT FALSE,
+--     completed_at TIMESTAMP NULL,
+--     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+--     FOREIGN KEY (lesson_id) REFERENCES Lessons(lesson_id) ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE Quiz_Questions (
+--     question_id SERIAL PRIMARY KEY,
+--     lesson_id INT NOT NULL,
+--     question_text TEXT NOT NULL,
+--     correct_answer VARCHAR(255) NOT NULL,
+--     options JSON NOT NULL,  -- Example: ['A. Option 1', 'B. Option 2', 'C. Option 3']
+--     FOREIGN KEY (lesson_id) REFERENCES Lessons(lesson_id) ON DELETE CASCADE
+-- );
+
+-- CREATE TABLE Quiz_Results (
+--     result_id SERIAL PRIMARY KEY,
+--     user_id INT NOT NULL,
+--     question_id INT NOT NULL,
+--     user_answer VARCHAR(255) NOT NULL,
+--     is_correct BOOLEAN NOT NULL,
+--     attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+--     FOREIGN KEY (question_id) REFERENCES Quiz_Questions(question_id) ON DELETE CASCADE
+-- );
+
+-- select * from Quiz_Results
+-- select * from Courses
+-- select * from users
+-- select * from course_skills
+-- select * from enrollments
+-- select * from learning_progress
+-- select * from lessons
+-- select * from quiz_questions
+-- select * from skills
+-- select * from user_skills
