@@ -63,7 +63,12 @@ app.get('/verify/:token', async (req, res) => {
         sameSite: isProduction ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 Days
       })
-
+      res.cookie('auth','email' , {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      })
       res.status(200).json({
         message: "Email verified successfully",
       });

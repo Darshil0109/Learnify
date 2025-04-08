@@ -36,6 +36,12 @@ router.get('/google/callback',
       sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 Days
       });
+      res.cookie('auth','google' , {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      })
       res.redirect(process.env.CLIENT_URL + '/profile');
     }
 );
@@ -43,10 +49,10 @@ router.get('/google/callback',
 router.post('/refresh-token',handleTokenRefresh);
 
 // route to handle user logout
-router.get('/logout', handleGoogleLogout);
+router.post('/logout', handleGoogleLogout);
 
 // route to check user's authentication
-router.get('/user', checkGoogleAuthentication);
+router.get('/user', checkGoogleAuthentication); 
 
 //routes to signup and login 
 router.post('/signup', signupUser);

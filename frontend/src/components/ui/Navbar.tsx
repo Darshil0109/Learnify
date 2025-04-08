@@ -25,8 +25,36 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
 import { MdOutlineLogin } from "react-icons/md";
+import { useEffect, useState } from "react";
+import axios from "axios";
 const Navbar = () => {
-    
+    const [isAuthenticated , setIsAuthenticated] = useState<boolean | null>(null);
+    const handleLogout = async() =>{
+        const res = await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+            {},
+            {withCredentials : true}
+        );
+        if (res.data.message === "logout successfull"){
+            setIsAuthenticated(false);
+        }
+    }
+    useEffect(()=>{
+        function getCookie(name:string) {
+            const cookies = document.cookie.split("; ");
+            for (let cookie of cookies) {
+            const [key, value] = cookie.split("=");
+            if (key === name) return value;
+            }
+            return null;
+        }
+        if (getCookie('accessToken')) {
+            setIsAuthenticated(true);
+        }
+        else{
+            setIsAuthenticated(false);
+        }
+    },[])
   return (
     <div className="flex justify-center w-full h-16 sticky top-0 mx-auto border-b z-10">
         <div className="flex items-center justify-between py-2 px-12 lg:px-[10%] w-full backdrop-blur-xl bg-white/80">
@@ -59,25 +87,29 @@ const Navbar = () => {
                         </div>
                     </SheetContent>
                 </Sheet>
+                {!isAuthenticated ? 
+                <Link to={'/signin'}><Button className="hidden sm:flex cursor-pointer">Sign In <IoMdArrowRoundForward /></Button></Link>
+                : 
                 <DropdownMenu>
                     <DropdownMenuTrigger className="outline-none">
                         <Avatar>
                         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                        <AvatarFallback>CN</AvatarFallback>
+                        <AvatarFallback></AvatarFallback>
                         </Avatar>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem><Link to={'/profile'}>Profile</Link> </DropdownMenuItem>
+                        <Link to={'/profile'}><DropdownMenuItem>Profile </DropdownMenuItem></Link>
+                        <Link to={'/dashboard'}><DropdownMenuItem>Dashboard</DropdownMenuItem></Link> 
                         <hr />
-                        <DropdownMenuItem className="flex items-center justify-between" >
+                        <DropdownMenuItem className="flex items-center justify-between" onClick={handleLogout}>
                             <span>Log out</span>
                             <MdOutlineLogin className="text-black ml-2" />
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Link to={'/signin'}><Button className="hidden sm:flex cursor-pointer">Sign In <IoMdArrowRoundForward /></Button></Link>
+                }
             </div>
         </div>
     </div>

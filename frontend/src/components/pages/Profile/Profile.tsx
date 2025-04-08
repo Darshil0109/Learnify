@@ -1,8 +1,10 @@
+import AuthenticatedNavbar from "@/components/custom/AuthenticatedNavbar"
+
 const Profile = () => {
   
   return (
     <>
-        Profile
+        <AuthenticatedNavbar/>
     </>
   )
 }

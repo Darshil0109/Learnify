@@ -1,9 +1,11 @@
+import AuthenticatedNavbar from "@/components/custom/AuthenticatedNavbar"
 import Courses from "./Courses"
 
 const Dashboard = () => {
   return (
     <>
-       <Courses/>
+      <AuthenticatedNavbar/>
+      <Courses/>
     </>
   )
 }

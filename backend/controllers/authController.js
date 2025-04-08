@@ -39,13 +39,9 @@ const loginUser = async (req, res) => {
         return res.status(401).send("Incorrect password");
       }
   
-      // 3. Check if verified
-      if (!user.is_verified) {
-        sendVerificationMail(user.email);
-        return res.status(403).send("User not Verified . Verify Email id First by clicking the verification link sent to your email");
-      }
+     
   
-      // 4. Create token
+      // 3. Create token
       const accessToken = jwt.sign({ user_id: user.user_id , email : user.email , name : user.name , profile_image : user.profile_image , role : user.role , is_verified : user.is_verified , created_at : user.created_at  }, process.env.JWT_SECRET_ACCESS_TOKEN, {
         expiresIn: "15m"
       });
@@ -59,6 +55,12 @@ const loginUser = async (req, res) => {
         maxAge: 15 * 60 * 1000
       })
       res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      })
+      res.cookie('auth','email' , {
         httpOnly: true,
         secure: isProduction,
         sameSite: isProduction ? 'none' : 'lax',
@@ -107,9 +109,53 @@ const checkGoogleAuthentication = (req, res) => {
     }
 }
 const handleGoogleLogout = (req, res) => {
-  req.logout(() => {
-      res.redirect(process.env.CLIENT_URL + '/'); 
-  });
+  const auth = req.cookies.auth;
+  const isProduction = process.env.NODE_ENV === "PRODUCTION";
+  if (auth === 'google') {
+    res.clearCookie('accessToken', {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',            // must match the path it was set with
+    });
+    
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+    res.clearCookie('auth', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+    req.logout(() => {});
+    res.send({message:"logout successfull"})
+  }
+  else{
+    res.clearCookie('accessToken', {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',            // must match the path it was set with
+    });
+    
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+    res.clearCookie('auth', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+    res.send({message:"logout successfull"})
+  }
 }
 
 const handleTokenRefresh = (req,res) =>{
@@ -134,7 +180,6 @@ const handleTokenRefresh = (req,res) =>{
       maxAge: 15 * 60 * 1000
     })
     res.send({message : 'accessTokenRefreshed'})
-    console.log('accessTokenChanged');
     
   })
 }

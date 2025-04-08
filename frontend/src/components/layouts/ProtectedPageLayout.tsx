@@ -4,10 +4,6 @@
 
     const ProtectedPageLayout = () => {
         const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-        let time = 0
-        setInterval(()=>{
-            time += 1
-        },1000)
         
         useEffect(() => {  
             const refreshToken = async() => {
@@ -17,9 +13,6 @@
                         {},
                         { withCredentials: true }
                     );
-                    console.log('sending request',time);
-                    time = 0;
-                    console.log("cookie got refresh", res);
                 } catch (err) {
                     console.log(err);
                 

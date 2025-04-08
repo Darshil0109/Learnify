@@ -6,6 +6,7 @@ import Signin from "./components/pages/Authentication/Signin"
 import Signup from "./components/pages/Authentication/Signup"
 import Profile from "./components/pages/Profile/Profile"
 import ProtectedPageLayout from "./components/layouts/ProtectedPageLayout"
+import Dashboard from "./components/pages/Dashboard/Dashboard"
 
 
 const App = () => {
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/verify/:token" element={<VerifyEmail/>}/>
         <Route element = {<ProtectedPageLayout/>}>
           <Route path="/profile" element={<Profile/>}/>
+          <Route path="/dashboard" element={<Dashboard/>}/>
         </Route>
       </Routes>
     </Router>
