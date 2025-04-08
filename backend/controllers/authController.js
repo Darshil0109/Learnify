@@ -134,6 +134,7 @@ const handleTokenRefresh = (req,res) =>{
       maxAge: 15 * 60 * 1000
     })
     res.send({message : 'accessTokenRefreshed'})
+    console.log('accessTokenChanged');
     
   })
 }
