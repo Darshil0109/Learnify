@@ -44,6 +44,8 @@ const SigninForm = () => {
           }
         } catch (err: unknown) {  // Type is unknown for safety}
           console.log(err);
+          
+          setError(axios.isAxiosError(err) ? err.response?.data : 'An unexpected error occurred.');
         }
         finally{
           setLoading(false);
@@ -87,12 +89,12 @@ const SigninForm = () => {
                 <div className="grid gap-2 relative">
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="ml-auto text-sm underline-offset-4 hover:underline"
                     >
                       Forgot your password?
-                    </a>
+                    </Link>
                   </div>
                   <Input id="password" name='password' type={showPassword ? "text" : "password"} required />
                   <div 

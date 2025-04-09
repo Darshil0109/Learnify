@@ -5,6 +5,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const pool = require("../config/db")
 const { sendVerificationMail } = require("../services/sendVerificationMail");
+const { sendOTPMail } = require("../services/sendOTPMail");
 
 
 const loginUser = async (req, res) => {
@@ -21,15 +22,15 @@ const loginUser = async (req, res) => {
       }
   
       const user = result.rows[0];
+      if(user.auth_provider === 'google'){
+        return res.status(403).send("User not registered with this method");
+      }
       
       if (!user.is_verified) {
         sendVerificationMail(user.email);
         return res.status(403).send("User not Verified. Verify Email id First by clicking the verification link sent to your email");
       }
 
-      if(!user.auth_provider === 'google'){
-        return res.status(403).send("User not registered with this method");
-      }
 
       // 2. Compare password
       const isMatch = await bcrypt.compare(password, user.password_hash);
@@ -118,7 +119,6 @@ const handleGoogleLogout = (req, res) => {
       sameSite: isProduction ? 'none' : 'lax',
       path: '/',            // must match the path it was set with
     });
-    
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: isProduction,
@@ -184,12 +184,81 @@ const handleTokenRefresh = (req,res) =>{
   })
 }
 
+const sendOTP = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "PRODUCTION";
+  const email = req.body.email;
+  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+
+  if (result.rows.length === 0) {
+    return res.status(404).send("User not found");
+  }
+  if (result.rows[0].auth_provider === 'google'){
+    return res.status(403).send("User not registered with this method");
+  }
+  sendOTPMail(email);
+  res.cookie('email', encodeURIComponent(email),
+  { 
+    httpOnly: false,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 10 * 60 * 1000
+  });
+  res.send({message : "OTP sent successfully"});
+}
+const verifyOTP = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "PRODUCTION";
+  const otp = req.body.otp;
+  const email = decodeURIComponent(req.cookies.email);
+  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  const user = result.rows[0];
+  const isMatch = await bcrypt.compare(otp, user.otp_hash);
+  if (!isMatch) {
+    return res.status(401).send("Incorrect OTP");
+  }
+  res.cookie('resetToken', encodeURIComponent(user.reset_token),
+  { 
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 10 * 60 * 1000
+  });
+  await pool.query('UPDATE users SET otp_hash = $1, otp_expires = $2 WHERE email = $3', [null, null, email]);
+  return res.status(200).send({message : "OTP verified successfully"});
+}
+const changePassword = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "PRODUCTION";
+  const resetToken = decodeURIComponent(req.cookies.resetToken);
+  const newPassword = req.body.newPassword;
+  const result = await pool.query('SELECT * FROM users WHERE reset_token = $1', [resetToken]);
+  const user = result.rows[0];
+  if (!user) {
+    return res.status(404).send("User not found");
+  }
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password_hash = $1, reset_token = null WHERE reset_token = $2', [hashedPassword, resetToken]);
+  res.clearCookie('email', {
+    httpOnly: false,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
+  });
+  res.clearCookie('resetToken', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    path: '/',
+  });
+  return res.send({message : "Password changed successfully"});
+}
 
 module.exports = {
     loginUser,
     signupUser,
     checkGoogleAuthentication,
     handleGoogleLogout,
-    handleTokenRefresh
+    handleTokenRefresh,
+    sendOTP,
+    verifyOTP,
+    changePassword
     
 }

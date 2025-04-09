@@ -24,9 +24,40 @@ const SignupForm = () => {
     setError('');
 
     const formData = new FormData(e.currentTarget);        
-    const name = formData.get("name");
-    const email = formData.get("email");
-    const password = formData.get("password");
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const nameRegex = /^[A-Za-z ]{2,15}$/;
+    if (nameRegex.test(name as string) === false){
+      setError('Name must be between 2 to 15 characters and contain only letters and spaces.');
+      setLoading(false);
+      return;
+    }
+    if(password?.length < 8 || password?.length > 16){
+      setError('Password must be at least 8 characters long and at most 16 characters long.');
+      setLoading(false);
+      return;
+    }
+    if(/.*[A-Z].*/.test(password) === false){
+      setError('Password must contain at least one Uppercase letter.');
+      setLoading(false);
+      return;
+    }
+    if(/.*[a-z].*/.test(password) === false){
+      setError('Password must contain at least one Lowercase letter.');
+      setLoading(false);
+      return;
+    }
+    if(/.*[0-9].*/.test(password) === false){
+      setError('Password must contain at least one Digit.');
+      setLoading(false);
+      return;
+    }
+    if(/.*[$@#].*/.test(password) === false){
+      setError('Password must contain at least one special character from $, @, #');
+      setLoading(false);
+      return;
+    }
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/signup`,
@@ -43,7 +74,7 @@ const SignupForm = () => {
       console.log(err);
       
       if (axios.isAxiosError(err)) {  // Narrow the type
-          setError(err.response?.data?.error || 'Signup failed. Please try again.');
+          setError(err.response?.data?.message || 'Signup failed. Please try again.');
       } else if (err instanceof Error) {
           setError(err.message || 'An unexpected error occurred.');
       } else {
@@ -90,7 +121,7 @@ const SignupForm = () => {
               </div>
               <div className="grid gap-3">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Name</Label>
+                  <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
                     name="name"
@@ -105,7 +136,7 @@ const SignupForm = () => {
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="abc12@example.com"
                     required
                   />
                 </div>

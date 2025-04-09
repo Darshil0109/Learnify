@@ -1,8 +1,6 @@
 import { IoBookOutline } from "react-icons/io5";
-import SignupForm from "./SignupForm";
-import { Link } from "react-router-dom";
-
-const Signup = () => {
+import { Link, Outlet } from "react-router-dom";
+const AuthenticationFormLayout = () => {
   return (
     <div>
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
@@ -13,11 +11,11 @@ const Signup = () => {
             </div>
                 Learnify
             </Link>
-            <SignupForm/>
+            <Outlet/>
         </div>
         </div>
     </div>
   )
 }
 
-export default Signup
+export default AuthenticationFormLayout

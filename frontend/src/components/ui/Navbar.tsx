@@ -100,8 +100,8 @@ const Navbar = () => {
                     <DropdownMenuContent>
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <Link to={'/profile'}><DropdownMenuItem>Profile </DropdownMenuItem></Link>
                         <Link to={'/dashboard'}><DropdownMenuItem>Dashboard</DropdownMenuItem></Link> 
+                        <Link to={'/profile'}><DropdownMenuItem>Profile </DropdownMenuItem></Link>
                         <hr />
                         <DropdownMenuItem className="flex items-center justify-between" onClick={handleLogout}>
                             <span>Log out</span>

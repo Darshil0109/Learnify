@@ -8,20 +8,18 @@
         useEffect(() => {  
             const refreshToken = async() => {
                 try {
-                    const res = await axios.post(
+                    await axios.post(
                         `${import.meta.env.VITE_API_URL}/api/auth/refresh-token`,
                         {},
                         { withCredentials: true }
                     );
                 } catch (err) {
                     console.log(err);
-                
                     console.error("Error refreshing token", err);
                 }
             }
             refreshToken();
             const interval = setInterval(async () => {
-                console.log('sending request')
                 refreshToken();
             }, 1000 * 60 * 14); // every 14 minutes (1 minute before cookie expires)
         

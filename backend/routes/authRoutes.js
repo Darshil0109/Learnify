@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { signupUser, loginUser, checkGoogleAuthentication, handleGoogleLogout, handleTokenRefresh } = require("../controllers/authController");
+const { signupUser, loginUser, checkGoogleAuthentication, handleGoogleLogout, handleTokenRefresh, sendOTP, changePassword, verifyOTP } = require("../controllers/authController");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const { sendOTPMail } = require("../services/sendOTPMail");
 
 // route to get user's google accounts available for authentication
 router.get('/google', 
@@ -57,5 +58,8 @@ router.get('/user', checkGoogleAuthentication);
 //routes to signup and login 
 router.post('/signup', signupUser);
 router.post('/login', loginUser);
+router.post('/send-otp',sendOTP);
+router.post('/verify-otp',verifyOTP);
+router.post('/change-password',changePassword);
 
 module.exports = router;
