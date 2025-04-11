@@ -8,11 +8,12 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import axios from "axios"
+import api from "@/axios/api"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { AiOutlineEyeInvisible,AiOutlineEye } from "react-icons/ai";
 import ContinueWithGoogle from "@/components/custom/ContinueWithGoogle"
+import axios from "axios"
 const SignupForm = () => {
   const [loading,setLoading] = useState<boolean>(false);
   const [error,setError] = useState<string>('');
@@ -59,8 +60,8 @@ const SignupForm = () => {
       return;
     }
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/signup`,
+      const response = await api.post(
+        `/api/auth/signup`,
         {
           name:name,
           email:email,
@@ -72,7 +73,7 @@ const SignupForm = () => {
       }
     } catch (err: unknown) {  // Type is unknown for safety
       console.log(err);
-      
+
       if (axios.isAxiosError(err)) {  // Narrow the type
           setError(err.response?.data?.message || 'Signup failed. Please try again.');
       } else if (err instanceof Error) {
@@ -91,7 +92,7 @@ const SignupForm = () => {
           Signup Successful!
         </h2>
         <p className="text-center">
-          Please check your email's Spam Folder to verify your account.
+          Please check your email to verify your account.
         </p>
       </div>
     );

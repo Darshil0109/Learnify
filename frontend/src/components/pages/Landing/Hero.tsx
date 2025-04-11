@@ -15,7 +15,7 @@ const Hero = () => {
         </span>
         <div className="flex gap-4 mt-12">
             <Link to={'/courses'}><Button className="cursor-pointer">Explore Courses</Button></Link>
-            <Link to={'/signin'}><Button className="cursor-pointer " variant={"outline"}>Get Started</Button></Link>
+            <Link to={'/dashboard'}><Button className="cursor-pointer " variant={"outline"}>Get Started</Button></Link>
         </div>
     </div>
   )

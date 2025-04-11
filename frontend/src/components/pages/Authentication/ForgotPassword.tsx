@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import axios from "axios"
+import api from "@/axios/api"
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 const SignupForm = () => {
@@ -22,11 +22,10 @@ const SignupForm = () => {
     try {
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email");
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`,{email});
+        const response = await api.post(`/api/auth/send-otp`,{email});
         if (response.data.message === "OTP sent successfully") {
-            navigate('/verify-otp');
+          navigate('/verify-otp');
         }
-        
     } catch (error) {
     }finally{
         setLoading(false);

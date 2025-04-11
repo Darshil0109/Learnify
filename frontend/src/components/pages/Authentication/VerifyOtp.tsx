@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import axios from "axios"
+import api from "@/axios/api"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
@@ -15,6 +15,7 @@ import {
     InputOTPSeparator,
     InputOTPSlot,
   } from "@/components/ui/input-otp"
+import axios from "axios"
 const VerifyOtp = () => {
     const [loading,setLoading] = useState<boolean>(false);
     const [error,setError] = useState<string>('');
@@ -43,7 +44,7 @@ const VerifyOtp = () => {
         try {
             const formData = new FormData(e.currentTarget);
             const otp = formData.get("otp") as string;
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`,{otp});
+            const response = await api.post(`/api/auth/verify-otp`,{otp});
             if (response.data.message === "OTP verified successfully") {
                 navigate('/password-reset');
             }

@@ -1,4 +1,4 @@
-import axios from "axios"
+import api from "@/axios/api"
 import { useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -8,10 +8,10 @@ const VerifyEmail = () => {
     useEffect(()=>{
         const verifyRequest = async () =>{
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/verify/${token}`,{withCredentials: true});
+                const response = await api.get(`/verify/${token}`);
                 console.log(response.data);
                 if (response.data.message === "Email verified successfully"){
-                    navigate('/profile');
+                    navigate('/dashboard');
                 }
             } catch (error) {
                 console.log(error)

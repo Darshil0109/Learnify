@@ -26,35 +26,58 @@ import {
   } from "@/components/ui/dropdown-menu";
 import { MdOutlineLogin } from "react-icons/md";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/axios/api";
 const Navbar = () => {
     const [isAuthenticated , setIsAuthenticated] = useState<boolean | null>(null);
     const handleLogout = async() =>{
-        const res = await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+        const res = await api.post(
+            `/api/auth/logout`,
             {},
-            {withCredentials : true}
         );
         if (res.data.message === "logout successfull"){
             setIsAuthenticated(false);
         }
     }
+        
     useEffect(()=>{
-        function getCookie(name:string) {
-            const cookies = document.cookie.split("; ");
-            for (let cookie of cookies) {
-            const [key, value] = cookie.split("=");
-            if (key === name) return value;
+        const checkAuth = async () => {
+            try {
+                const response = await api.get(`/api/authenticate`);
+                if (response.data.message === "Authenticated") {
+                    setIsAuthenticated(true);
+                }
+                else{
+                    setIsAuthenticated(false);
+                }
+            } catch (err) {
+                setIsAuthenticated(false);
             }
-            return null;
         }
-        if (getCookie('accessToken')) {
-            setIsAuthenticated(true);
-        }
-        else{
-            setIsAuthenticated(false);
-        }
+        checkAuth();
     },[])
+    useEffect(() => {  
+        if (isAuthenticated) {
+            const refreshToken = async() => {
+                try {
+                    await api.post(
+                        `/api/auth/refresh-token`,
+                        {},
+                    );
+                    setIsAuthenticated(true);
+                } catch (err) {
+                    console.log(err);
+                    
+                }
+            }
+            refreshToken()
+            const interval = setInterval(async () => {
+                refreshToken();
+            }, 1000 * 60 * 14); // every 14 minutes (1 minute before cookie expires)
+        
+            return () => clearInterval(interval); // cleanup interval
+        }
+        
+    }, [isAuthenticated]);
   return (
     <div className="flex justify-center w-full h-16 sticky top-0 mx-auto border-b z-10">
         <div className="flex items-center justify-between py-2 px-12 lg:px-[10%] w-full backdrop-blur-xl bg-white/80">

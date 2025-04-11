@@ -12,6 +12,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ContinueWithGoogle from "@/components/custom/ContinueWithGoogle";
 import { AiOutlineEyeInvisible,AiOutlineEye } from "react-icons/ai";
+import api from "@/axios/api";
 import axios from "axios";
 
 const SigninForm = () => {
@@ -28,8 +29,8 @@ const SigninForm = () => {
         const email = formData.get("email");
         const password = formData.get("password");
         try {
-          const response = await axios.post(
-            `${import.meta.env.VITE_API_URL}/api/auth/login`,
+          const response = await api.post(
+            `/api/auth/login`,
             {
               email:email,
               password:password
@@ -40,7 +41,7 @@ const SigninForm = () => {
           );
           if (response.data.message === "Login successful"){
             alert("Login successful");
-            navigate('/profile')
+            navigate('/dashboard')
           }
         } catch (err: unknown) {  // Type is unknown for safety}
           console.log(err);

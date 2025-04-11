@@ -3,10 +3,12 @@ const app = express();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const session = require('express-session');
 const pool = require("./config/db");
 const passport = require('./config/passport');
 const cookieParser = require("cookie-parser");
+const authMiddleware = require("./middleware/authMiddleware");
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true
@@ -79,7 +81,21 @@ app.get('/verify/:token', async (req, res) => {
     }
   });
 app.use('/api/auth',authRoutes);
+app.use('/api/users',userRoutes);
 
+app.get('/api/skills',authMiddleware, async (req,res) =>{
+  const result = await pool.query("SELECT * FROM skills");
+  res.json(result.rows);
+})
+
+app.get('/api/authenticate',(req,res)=>{
+  if(req.cookies.refreshToken){
+    return res.status(200).send({message : "Authenticated"});
+  }
+  else{
+    return res.status(401).send({message : "Not authenticated"});
+  }
+})
 app.listen(PORT, () => {
     console.log(`Server is running on port http://localhost:${PORT}`);
 });
