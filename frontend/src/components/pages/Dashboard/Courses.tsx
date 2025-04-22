@@ -5,7 +5,7 @@ const Courses = () => {
     <div className="mt-20 px-4">
       <Tabs defaultValue="account" className="w-full">
         <div className="overflow-x-auto scrollbar-hide">
-          <TabsList className="flex w-max space-x-4 px-4">
+          <TabsList className="flex w-max space-x-4 px-4 ">
             <TabsTrigger value="account">Home</TabsTrigger>
             <TabsTrigger value="password">My Learning</TabsTrigger>
             <TabsTrigger value="degrees">Online Quizs</TabsTrigger>

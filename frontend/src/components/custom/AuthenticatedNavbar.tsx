@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Menu, Search, X } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { IoBookOutline } from "react-icons/io5"
@@ -19,6 +19,19 @@ import api from '@/axios/api'
 const AuthenticatedNavbar = () => {
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [avatar,setAvatar] = useState('')
+  useEffect(()=>{
+    const fetchUserData = async () => {
+      const response = await api.get('/api/users');
+      if (response.status === 200) {
+        const userData = response.data;
+        setAvatar(userData.profile_image);
+      } else {
+        console.error("Error fetching user data:", response.statusText);
+      }
+    }
+    fetchUserData();
+  },[])
   const handleLogout = async () => {
     try {
       const res = await api.post(`/api/auth/logout`, {})
@@ -91,7 +104,7 @@ const AuthenticatedNavbar = () => {
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+              <AvatarImage src={avatar} alt="@shadcn" />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>

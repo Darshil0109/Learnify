@@ -9,6 +9,7 @@ const pool = require("./config/db");
 const passport = require('./config/passport');
 const cookieParser = require("cookie-parser");
 const authMiddleware = require("./middleware/authMiddleware");
+const courseRoutes = require("./routes/courseRoutes");
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true
@@ -82,7 +83,7 @@ app.get('/verify/:token', async (req, res) => {
   });
 app.use('/api/auth',authRoutes);
 app.use('/api/users',userRoutes);
-
+app.use('/api/courses',courseRoutes);
 app.get('/api/skills',authMiddleware, async (req,res) =>{
   const result = await pool.query("SELECT * FROM skills");
   res.json(result.rows);

@@ -13,4 +13,24 @@ const storage = new CloudinaryStorage({
         allowed_formats: ['jpg', 'png', 'jpeg'], // file types allowed
     },
 });
-module.exports = { cloudinary, storage };
+const mixedStorage = new CloudinaryStorage({
+    cloudinary,
+    params: async (req, file) => {
+      if (file.fieldname === 'thumbnail') {
+        return {
+          folder: 'courses/thumbnails',
+          resource_type: 'image',
+          allowed_formats: ['jpg', 'png', 'jpeg']
+        };
+      } else if (file.fieldname.startsWith('lessonVideo_')) {
+        return {
+          folder: 'courses/videos',
+          resource_type: 'video',
+          allowed_formats: ['mp4', 'webm', 'mov']
+        };
+      }
+      return {};
+    }
+  });
+  
+module.exports = { cloudinary, storage , mixedStorage };
