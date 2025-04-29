@@ -3,7 +3,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 const multer = require('multer');
 const { mixedStorage } = require("../utils/cloudinary");
-const { addCourseData, getCourseById, getLessonsAndModulesByCourseId, getAllCourses } = require("../controllers/courseController");
+const { addCourseData, getCourseById, getLessonsAndModulesByCourseId, getAllCourses, enrollCourse, getEnrolledCourses, getCourseProgress, getEnrollmentStatus, getCourseThumbnail, getCompletedLessons, addCompletedLesson } = require("../controllers/courseController");
 
 const upload = multer({ storage: mixedStorage });
 // Multer middleware
@@ -13,9 +13,6 @@ for (let i = 0; i < 20; i++) {
 }
 
 router.get('/',getAllCourses);
-router.get('/course/:courseId', getCourseById);
-router.get('/course/lessons/:courseId', getLessonsAndModulesByCourseId);
-
 router.post('/addCourse',authMiddleware , upload.fields(uploadFields) , async (req, res) => {
     try {
       const thumbnailUrl = req.files?.thumbnail?.[0]?.path;
@@ -37,5 +34,14 @@ router.post('/addCourse',authMiddleware , upload.fields(uploadFields) , async (r
       console.error(err);
       res.status(500).json({ error: 'Upload or processing failed' });
     }
-  });
-  module.exports = router;
+});
+router.get('/enrolledCourses',authMiddleware, getEnrolledCourses);
+router.get('/course/progress',authMiddleware, getCourseProgress);
+router.get('/course/completed-lessons',authMiddleware,getCompletedLessons);
+router.post('/course/complete/lesson/:lessonId',authMiddleware,addCompletedLesson);
+router.post('/enroll/:courseId',authMiddleware,enrollCourse);
+router.get('/course/:courseId', getCourseById);
+router.get('/course/lessons/:courseId', getLessonsAndModulesByCourseId);
+router.get('/course/check-enrollment/:courseId',authMiddleware,getEnrollmentStatus);
+router.get('/course/thumbnail/:courseId',getCourseThumbnail);
+module.exports = router;

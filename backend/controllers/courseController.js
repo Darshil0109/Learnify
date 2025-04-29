@@ -89,6 +89,9 @@ const getCourseById = async (req, res) => {
     try {
         const courseId = req.params.courseId;
         const result = await pool.query('SELECT * FROM Courses WHERE course_id = $1', [courseId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Course not found' });
+        }
         res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error in getCourseById:', error);
@@ -109,9 +112,143 @@ const getLessonsAndModulesByCourseId = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch lessons' });
     }
 }
+
+const enrollCourse = async (req, res) => {
+    const userid = req.user.user_id;
+    // console.log(req.user);
+    
+    const courseId = req.params.courseId;
+    
+    try {
+        const result = await pool.query(
+            'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2) RETURNING *',
+            [userid, courseId]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error in enrollCourse:', error);
+        res.status(500).json({ error: 'Failed to enroll in course' });
+    }
+}
+const getCompletedLessons = async (req, res) => {
+    const userId = req.user.user_id;
+    try {
+        const result = await pool.query(
+            `SELECT lesson_id FROM Learning_Progress WHERE user_id = $1 AND completed = true`,
+            [userId]
+        );
+        const lessonIDs = []
+        result.rows.map((row)=>{
+            lessonIDs.push(row.lesson_id)
+        })
+
+        res.status(200).json(lessonIDs);
+    } catch (error) {
+        console.error('Error in getCompletedLessons:', error);
+        res.status(500).json({ error: 'Failed to fetch completed lessons' });
+    }
+}
+const addCompletedLesson = async (req, res) => {
+    const userId = req.user.user_id;
+    const lessonId = req.params.lessonId;
+    try {
+        const result = await pool.query(
+            `INSERT INTO Learning_Progress (user_id, lesson_id, completed) VALUES ($1, $2, true) RETURNING *`,
+            [userId, lessonId]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error in addCompletedLesson:', error);
+        res.status(500).json({ error: 'Failed to add completed lesson' });
+    }
+}
+const getEnrolledCourses = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const result = await pool.query(
+            `SELECT * FROM ENROLLMENTS JOIN COURSES on COURSES.course_id = ENROLLMENTS.course_id WHERE user_id = $1`,
+            [userId]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error in getEnrolledCourses:', error);
+        res.status(500).json({ error: 'Failed to fetch enrolled courses' });
+    }
+}
+const getCourseProgress = async(req,res)=>{
+  try {
+    const userId = req.user.user_id;
+    const result = await pool.query(
+      `
+      SELECT 
+        C.course_id,
+        C.title,
+        COUNT(CASE WHEN LP.completed THEN 1 END)::FLOAT AS completed_lessons,
+        (SELECT COUNT(*) FROM Lessons WHERE course_id = C.course_id)::FLOAT AS total_lessons
+      FROM Courses C
+      JOIN Lessons L ON C.course_id = L.course_id
+      LEFT JOIN Learning_Progress LP ON L.lesson_id = LP.lesson_id AND LP.user_id = $1
+      GROUP BY C.course_id, C.title
+      HAVING COUNT(LP.user_id) > 0 -- Only include courses with at least one lesson the user has attempted
+      ORDER BY C.course_id;
+      `,
+      [userId]
+    );
+
+    const formatted = result.rows.map(row => ({
+      course_id: row.course_id,
+      title: row.title,
+      progress: row.total_lessons > 0 
+        ? parseFloat((row.completed_lessons / row.total_lessons).toFixed(2))
+        : 0.0
+    }));
+
+    res.status(200).json(formatted);
+  } catch (error) {
+    console.error('Error calculating progress:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+const getEnrollmentStatus = async (req, res) => {
+    const userId = req.user.user_id;
+    const courseId = req.params.courseId;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2',
+            [userId, courseId]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Not enrolled in this course' });
+        }
+        res.status(200).json({ message: 'Enrolled in this course' });
+    } catch (error) {
+        console.error('Error in getEnrollmentStatus:', error);
+        res.status(500).json({ error: 'Failed to fetch enrollment status' });
+    }
+}
+const getCourseThumbnail = async (req, res) => {
+    const courseId = req.params.courseId;
+    try {
+        const result = await pool.query('SELECT course_thumbnail FROM Courses WHERE course_id = $1', [courseId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Course not found' });
+        }
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error in getCourseThumbnail:', error);
+        res.status(500).json({ error: 'Failed to fetch course thumbnail' });
+    }
+}    
 module.exports = {
     addCourseData,
     getAllCourses,
     getLessonsAndModulesByCourseId,
     getCourseById,
+    enrollCourse,
+    getEnrolledCourses,
+    getCourseProgress,
+    getEnrollmentStatus,
+    getCourseThumbnail,
+    getCompletedLessons,
+    addCompletedLesson,
 }

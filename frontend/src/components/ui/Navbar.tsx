@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import api from "@/axios/api";
 const Navbar = () => {
     const [isAuthenticated , setIsAuthenticated] = useState<boolean | null>(null);
+    const [avatar,setAvatar] = useState('');
     const handleLogout = async() =>{
         const res = await api.post(
             `/api/auth/logout`,
@@ -78,6 +79,18 @@ const Navbar = () => {
         }
         
     }, [isAuthenticated]);
+    useEffect(()=>{
+        const fetchUserData = async () => {
+          const response = await api.get('/api/users');
+          if (response.status === 200) {
+            const userData = response.data;
+            setAvatar(userData.profile_image);
+          } else {
+            console.error("Error fetching user data:", response.statusText);
+          }
+        }
+        fetchUserData();
+      },[])
   return (
     <div className="flex justify-center w-full h-16 sticky top-0 mx-auto border-b z-10">
         <div className="flex items-center justify-between py-2 px-12 lg:px-[10%] w-full backdrop-blur-xl bg-white/80">
@@ -116,7 +129,7 @@ const Navbar = () => {
                 <DropdownMenu>
                     <DropdownMenuTrigger className="outline-none">
                         <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                        <AvatarImage src={avatar} alt="@shadcn" />
                         <AvatarFallback></AvatarFallback>
                         </Avatar>
                     </DropdownMenuTrigger>

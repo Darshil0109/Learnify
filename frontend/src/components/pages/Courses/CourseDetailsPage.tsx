@@ -3,10 +3,10 @@ import type React from "react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
-import { Star, Clock, BarChart, BookOpen } from "lucide-react"
+import { Clock, BarChart, BookOpen } from "lucide-react"
 import AuthenticatedNavbar from "@/components/custom/AuthenticatedNavbar"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
@@ -86,19 +86,71 @@ const CourseDetailsPage: React.FC = () => {
   const [modules, setModules] = useState<Module[]>([]);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [instructor, setInstructor] = useState<Instructor | null>(null);
-  const handleEnroll = () => {
-    toast("Enrollment Successfull")
-  }
   const { courseId } = useParams();
+  const [isLoading,setIsLoading] = useState(true);
+  const [isError,setIsError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isEnrolled, setIsEnrolled] = useState<boolean | null>(null);
+  useEffect(()=>{
+      const checkAuth = async () => {
+          try {
+              const response = await api.get(`/api/authenticate`);
+              if (response.data.message === "Authenticated") {
+                  setIsAuthenticated(true);
+              }
+              else{
+                  setIsAuthenticated(false);
+              }
+          } catch (err) {
+              setIsAuthenticated(false);
+              console.log(err);
+          }
+      }
+      checkAuth();
+  },[])
+  useEffect(()=>{
+      const checkEnrollment = async () => {
+          try {
+              const response = await api.get(`/api/courses/course/check-enrollment/${courseId}`);
+              if (response.status===200) {
+                setIsEnrolled(true);
+              }
+          } catch (err) {
+            setIsEnrolled(false);
+            console.log(err);
+          }
+      }
+      if(isAuthenticated) {
+        checkEnrollment();
+      }
+  },[isAuthenticated,courseId])
+  const handleEnroll = async() => {
+    try {
+      if (!isAuthenticated) {
+        toast.error("Please login to enroll in the course")
+        return
+      }
+      const response = await api.post(`/api/courses/enroll/${courseId}`, {});
+      if (response.status === 201) {
+        toast.success("Enrollment Successfull");
+        setIsEnrolled(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   useEffect(()=>{
     const fetchCourseData = async () => {
       try {
         const response = await api.get(`/api/courses/course/${courseId}`);
         const lessonAndModuleResponse = await api.get(`/api/courses/course/lessons/${courseId}`);
-        if (response.status !== 200) {
+        if (response.status !== 200 || lessonAndModuleResponse.status !== 200) {
           throw new Error("Failed to fetch course data");
         }
+
         const data = response.data;
+        
         
         const userResponse = await api.get(`/api/users/user/${data[0].owner_id}`);
         if (userResponse.status !== 200) {
@@ -109,15 +161,20 @@ const CourseDetailsPage: React.FC = () => {
         setCourseData(data[0]);
         setModules(lessonAndModuleResponse.data.modules);
         setLessons(lessonAndModuleResponse.data.lessons);
-        // setCourseData(data); // Assuming you have a state to set the course data
+        setIsError('')
       } catch (error) {
         console.error(error);
         toast.error("Failed to fetch course data");
+        setIsError("Not Found");
+      }
+      finally{
+        setIsLoading(false);
       }
     }
-    fetchCourseData()
-  },[])
+    fetchCourseData();
+  },[courseId])
   return (
+    !isLoading ? !(isError) ? 
     <div className="min-h-screen bg-white">
       <AuthenticatedNavbar/>
 
@@ -182,10 +239,10 @@ const CourseDetailsPage: React.FC = () => {
                   className="h-48 w-full rounded-t-lg object-cover"
                 />
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="mb-4 text-3xl font-bold">{courseData?.course_price} ₹</div>
-                <Button className="mb-4 w-full" onClick={handleEnroll}>
-                  Enroll Now
+              <CardContent className="py-0 px-6">
+                <div className="mb-4 text-3xl font-bold">{Number(courseData?.course_price) === 0 ? 'Free' : courseData?.course_price + '₹'} </div>
+                <Button disabled={isEnrolled ? true : false} className="mb-4 w-full" onClick={handleEnroll}>
+                  {isEnrolled ? 'Already Enrolled' : 'Enroll Now'}
                 </Button>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center gap-2">
@@ -323,6 +380,8 @@ const CourseDetailsPage: React.FC = () => {
         </div>
       </footer>
     </div>
+    : <>{isError}</> : <>Loading..</>
+    
   )
 }
 

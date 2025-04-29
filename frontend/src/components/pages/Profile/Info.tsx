@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import api from "@/axios/api";
+import EnrolledCourses from "../Courses/EnrolledCourses";
 const Info = () => {
     interface User {
         name: string;
@@ -310,7 +311,10 @@ const Info = () => {
                 </div>
             </div>
 
-            
+            {/* Enrolled Courses */}
+            <div>
+              <EnrolledCourses/>
+            </div>
 
             {/* Achievements */}
             <div className="card p-6">

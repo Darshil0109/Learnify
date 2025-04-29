@@ -16,6 +16,7 @@ import CoursesPage from "./components/pages/Courses/CoursesPage"
 import CourseDetailsPage from "./components/pages/Courses/CourseDetailsPage"
 import CourseForm from "./components/pages/Courses/CourseForm"
 import { Toaster } from "sonner";
+import CourseLearning from "./components/pages/Courses/CourseLearning"
 axios.defaults.withCredentials = true;
 
 const App = () => {
@@ -39,6 +40,7 @@ const App = () => {
           </Route>
           <Route path="/verify/:token" element={<VerifyEmail/>}/>
           <Route element = {<ProtectedPageLayout/>}>
+            <Route path="/course/learning/:courseId" element={<CourseLearning />}/>
             <Route path="/add-course" element={<CourseForm />}/>
             <Route path="/profile" element={<Profile/>} />
             <Route path="/dashboard" element={<Dashboard/>}/>

@@ -74,7 +74,7 @@ const CoursesPage = () => {
         setFilteredCourses(result)
     }
     // Filter by search query
-  }, [searchQuery, selectedCategories, selectedLevels])
+  }, [searchQuery, selectedCategories, selectedLevels,coursesData])
   
   // Toggle category selection
   const toggleCategory = (category:string) => {
