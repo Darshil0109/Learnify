@@ -198,10 +198,12 @@ const sendOTP = async (req, res) => {
   sendOTPMail(email);
   res.cookie('email', encodeURIComponent(email),
   { 
+    
     httpOnly: false,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 10 * 60 * 1000
+    maxAge: 10 * 60 * 1000,
+    domain: ".onrender.com"
   });
   res.send({message : "OTP sent successfully"});
 }
