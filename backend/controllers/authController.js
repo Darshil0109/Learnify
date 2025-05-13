@@ -202,8 +202,7 @@ const sendOTP = async (req, res) => {
     httpOnly: false,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 10 * 60 * 1000,
-    domain: ".onrender.com"
+    maxAge: 10 * 60 * 1000
   });
   res.send({message : "OTP sent successfully"});
 }
