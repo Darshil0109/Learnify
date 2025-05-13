@@ -1,7 +1,7 @@
 const pool = require("../config/db");
 const { cloudinary } = require("../utils/cloudinary");
 
-const getUserData = async (req, res) => {
+const   getUserData = async (req, res) => {
     const user_id = req.user.user_id;
     const result = await pool.query("SELECT * FROM users WHERE user_id = $1", [user_id]);
     const user = result.rows[0];

@@ -23,6 +23,8 @@ const SignupForm = () => {
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email");
         const response = await api.post(`/api/auth/send-otp`,{email});
+        console.log(response);;
+        
         if (response.data.message === "OTP sent successfully") {
           navigate('/verify-otp');
         }
