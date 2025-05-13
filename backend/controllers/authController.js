@@ -52,7 +52,6 @@ const loginUser = async (req, res) => {
       res.cookie('accessToken', accessToken, {
         httpOnly: false,
         secure: isProduction,
-        domain: isProduction ? process.env.FRONTEND_DOMAIN: undefined,
         sameSite: isProduction ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000
       })
@@ -117,7 +116,6 @@ const handleGoogleLogout = (req, res) => {
     res.clearCookie('accessToken', {
       httpOnly: false,
       secure: isProduction,
-      domain: isProduction ? process.env.FRONTEND_DOMAIN: undefined,
       sameSite: isProduction ? 'none' : 'lax',
       path: '/',            // must match the path it was set with
     });
@@ -139,7 +137,6 @@ const handleGoogleLogout = (req, res) => {
   else{
     res.clearCookie('accessToken', {
       httpOnly: false,
-      domain: isProduction ? process.env.FRONTEND_DOMAIN: undefined,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
       path: '/',            // must match the path it was set with
@@ -179,7 +176,6 @@ const handleTokenRefresh = (req,res) =>{
     res.cookie('accessToken', accessToken, {
       httpOnly: false,
       secure: isProduction,
-      domain: isProduction ? process.env.FRONTEND_DOMAIN: undefined,
       sameSite: isProduction ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000
     })
@@ -204,7 +200,6 @@ const sendOTP = async (req, res) => {
   { 
     httpOnly: false,
     secure: isProduction,
-    domain: isProduction ? process.env.FRONTEND_DOMAIN: undefined,
     sameSite: isProduction ? 'none' : 'lax',
     maxAge: 10 * 60 * 1000
   });
@@ -243,7 +238,6 @@ const changePassword = async (req, res) => {
   await pool.query('UPDATE users SET password_hash = $1, reset_token = null WHERE reset_token = $2', [hashedPassword, resetToken]);
   res.clearCookie('email', {
     httpOnly: false,
-    domain: isProduction ? process.env.FRONTEND_DOMAIN: undefined,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
     path: '/',

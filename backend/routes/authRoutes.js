@@ -27,7 +27,6 @@ router.get('/google/callback',
       
       res.cookie('accessToken', accessToken, {
       httpOnly: false,
-      domain: isProduction ? process.env.FRONTEND_DOMAIN : undefined,
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
       maxAge: 15 * 60 * 1000 // 15 minutes

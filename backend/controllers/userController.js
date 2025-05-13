@@ -118,7 +118,6 @@ const deleteUser = async (req, res) => {
             const isProduction = process.env.NODE_ENV === "PRODUCTION";
             res.clearCookie('accessToken', {
                 httpOnly: false,
-                domain: isProduction ? process.env.FRONTEND_DOMAIN : undefined,
                 secure: isProduction,
                 sameSite: isProduction ? 'none' : 'lax',
                 path: '/',            // must match the path it was set with
