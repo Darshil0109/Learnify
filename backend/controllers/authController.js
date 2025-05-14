@@ -273,9 +273,11 @@ const verifyOTP = async (req, res) => {
   const isProduction = process.env.NODE_ENV === "PRODUCTION";
   const otp = req.body.otp;
   const email = req.cookies.email;
+  
   const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
   const user = result.rows[0];
   const isMatch = await bcrypt.compare(otp, user.otp_hash);
+  
   if (!isMatch) {
     return res.status(401).send("Incorrect OTP");
   }

@@ -1,47 +1,51 @@
 const pool = require("../config/db");
-const nodemailer = require("nodemailer")
-require('dotenv').config();
-const crypto = require('crypto');
-const path = require('path');
-const fs = require('fs/promises');
-const sendVerificationMail = async(email) =>{
-    try {
-        const token = crypto.randomBytes(32).toString('hex');
-        const token_expires_at = new Date(Date.now() + (1000 * 60 * 15)); // 15 minutes in milliseconds
-        await pool.query("UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE email = $3", [token, token_expires_at, email]);
-        const link = `${process.env.CLIENT_URL}/verify/${token}`        
-        const templatePath = path.join(__dirname,"..","emails", 'verificationMail.html');
-        let html = await fs.readFile(templatePath, 'utf8');
-        let htmlTemplate = html.replace(/{{VERIFICATION_URL}}/g, link);
-        const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // true for port 465, false for 587
-            auth:{
-                user:process.env.GOOGLE_MAIL_APP_EMAIL,
-                pass:process.env.GOOGLE_MAIL_APP_PASSWORD,
-            }
-        });
+const sgMail = require("@sendgrid/mail");
+require("dotenv").config();
+const crypto = require("crypto");
+const path = require("path");
+const fs = require("fs/promises");
 
-        const mailOptions = {
-            from: 'learnify.27032025@gmail.com',
-            to: email,
-            subject: 'Verify Your Learnify Email Address',
-            html: htmlTemplate,    
-        };
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              console.log('Error:', error);
-              return 'Error in sending email'
-            }
-            return 'Email Sent Successfully'
-        });
-    } catch (error) {
-        console.log(error);
-        return 'Server Error'
-    }
-}
+// Set up SendGrid with your API key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const sendVerificationMail = async (email) => {
+  try {
+    // Generate a random token
+    const token = crypto.randomBytes(32).toString("hex");
+    const token_expires_at = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
+
+    // Update token and expiration in the database
+    await pool.query(
+      "UPDATE users SET verification_token = $1, verification_token_expires = $2 WHERE email = $3",
+      [token, token_expires_at, email]
+    );
+
+    // Generate the verification URL
+    const link = `${process.env.CLIENT_URL}/verify/${token}`;
+
+    // Load and update the email template with the verification URL
+    const templatePath = path.join(__dirname, "..", "emails", "verificationMail.html");
+    let html = await fs.readFile(templatePath, "utf8");
+    let htmlTemplate = html.replace(/{{VERIFICATION_URL}}/g, link);
+
+    // Prepare the email content
+    const msg = {
+      to: email,
+      from: process.env.SENDGRID_VERIFIED_SENDER, // Verified sender in SendGrid
+      subject: "Verify Your Learnify Email Address",
+      html: htmlTemplate,
+    };
+
+    // Send the email using SendGrid
+    await sgMail.send(msg);
+
+    return "Email Sent Successfully";
+  } catch (error) {
+    console.error("Error sending verification email:", error.response?.body || error);
+    return "Server Error";
+  }
+};
 
 module.exports = {
-    sendVerificationMail
-}
+  sendVerificationMail,
+};

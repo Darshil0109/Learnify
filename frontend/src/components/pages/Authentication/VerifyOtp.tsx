@@ -62,7 +62,7 @@ const VerifyOtp = () => {
     dataLoaded ? <div className={"flex flex-col gap-6"}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Enter OTP</CardTitle>
+          <CardTitle className="text-xl">Enter OTP Recieved on Mail (spam)</CardTitle>
           <CardDescription>
             Enter your otp to reset Password
           </CardDescription>

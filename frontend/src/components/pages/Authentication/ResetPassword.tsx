@@ -120,7 +120,7 @@ const ResetPassword = () => {
                   />
                 </div>
                 <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? "Please Wait..." : "Send OTP"}
+                  {loading ? "Please Wait..." : "Change Password"}
                 </Button>
               </div>
             </div>
