@@ -31,7 +31,7 @@ const ResetPassword = () => {
     else{
         setDataLoaded(true);
     }
-  },[])
+  },[navigate])
   const handlePasswordReset = async(e : React.FormEvent<HTMLFormElement>) =>{
     e.preventDefault();
     setLoading(true);

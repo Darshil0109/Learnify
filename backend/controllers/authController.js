@@ -246,7 +246,7 @@ const sendOTP = async (req, res) => {
   }
   sendOTPMail(email);
   if (process.env.DOMAIN) {
-    res.cookie('email', encodeURIComponent(email),
+    res.cookie('email',email,
     { 
       domain: process.env.DOMAIN,
       httpOnly: false,
@@ -257,7 +257,7 @@ const sendOTP = async (req, res) => {
     
   }
   else{
-    res.cookie('email', encodeURIComponent(email),
+    res.cookie('email', email,
     { 
       httpOnly: false,
       secure: isProduction,
@@ -266,12 +266,13 @@ const sendOTP = async (req, res) => {
     });
 
   }
+  console.log('otp sent to ',email)
   res.send({message : "OTP sent successfully"});
 }
 const verifyOTP = async (req, res) => {
   const isProduction = process.env.NODE_ENV === "PRODUCTION";
   const otp = req.body.otp;
-  const email = decodeURIComponent(req.cookies.email);
+  const email = req.cookies.email;
   const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
   const user = result.rows[0];
   const isMatch = await bcrypt.compare(otp, user.otp_hash);
