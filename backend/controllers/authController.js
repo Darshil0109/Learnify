@@ -198,7 +198,7 @@ const sendOTP = async (req, res) => {
   sendOTPMail(email);
   res.cookie('email', encodeURIComponent(email),
   { 
-    
+    domain: process.env.DOMAIN,
     httpOnly: false,
     secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
