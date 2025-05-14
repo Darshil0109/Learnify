@@ -49,12 +49,24 @@ const loginUser = async (req, res) => {
 
       const refreshToken = jwt.sign({ user_id: user.user_id }, process.env.JWT_SECRET_REFRESH_TOKEN, {expiresIn: "7d"});
       const isProduction = process.env.NODE_ENV === "PRODUCTION";
-      res.cookie('accessToken', accessToken, {
-        httpOnly: false,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
-        maxAge: 15 * 60 * 1000
-      })
+      if (process.env.DOMAIN) {
+        res.cookie('accessToken', accessToken, {
+          domain: process.env.DOMAIN,
+          httpOnly: false,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+          maxAge: 15 * 60 * 1000
+        })
+      }
+      else{
+        res.cookie('accessToken', accessToken, {
+          httpOnly: false,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+          maxAge: 15 * 60 * 1000
+        })
+      }
+      
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: isProduction,
@@ -113,12 +125,24 @@ const handleGoogleLogout = (req, res) => {
   const auth = req.cookies.auth;
   const isProduction = process.env.NODE_ENV === "PRODUCTION";
   if (auth === 'google') {
-    res.clearCookie('accessToken', {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: '/',            // must match the path it was set with
-    });
+    if (process.env.DOMAIN) {
+        res.clearCookie('accessToken', {
+          domain: process.env.DOMAIN,
+          httpOnly: false,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+          path: '/',            // must match the path it was set with
+        });
+      }
+      else{
+        res.clearCookie('accessToken', {
+          httpOnly: false,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+          path: '/',            // must match the path it was set with
+        });
+      }
+    
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: isProduction,
@@ -135,12 +159,25 @@ const handleGoogleLogout = (req, res) => {
     res.send({message:"logout successfull"})
   }
   else{
-    res.clearCookie('accessToken', {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: '/',            // must match the path it was set with
-    });
+    if(process.env.DOMAIN) {
+      
+      res.clearCookie('accessToken', {
+        domain: process.env.DOMAIN,
+        httpOnly: false,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',            // must match the path it was set with
+      });
+    }
+    else{
+      res.clearCookie('accessToken', {
+        httpOnly: false,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        path: '/',            // must match the path it was set with
+      });
+
+    }
     
     res.clearCookie('refreshToken', {
       httpOnly: true,
@@ -173,12 +210,24 @@ const handleTokenRefresh = (req,res) =>{
       expiresIn: "15m"
     });
     const isProduction = process.env.NODE_ENV === "PRODUCTION";
-    res.cookie('accessToken', accessToken, {
-      httpOnly: false,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      maxAge: 15 * 60 * 1000
-    })
+    if (process.env.DOMAIN) {
+      res.cookie('accessToken', accessToken, {
+        domain: process.env.DOMAIN,
+        httpOnly: false,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 15 * 60 * 1000
+      })
+    }
+    else{
+      res.cookie('accessToken', accessToken, {
+        httpOnly: false,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 15 * 60 * 1000
+      })
+    }
+
     res.send({message : 'accessTokenRefreshed'})
     
   })
@@ -196,14 +245,27 @@ const sendOTP = async (req, res) => {
     return res.status(403).send("User not registered with this method");
   }
   sendOTPMail(email);
-  res.cookie('email', encodeURIComponent(email),
-  { 
-    domain: process.env.DOMAIN,
-    httpOnly: false,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 10 * 60 * 1000
-  });
+  if (process.env.DOMAIN) {
+    res.cookie('email', encodeURIComponent(email),
+    { 
+      domain: process.env.DOMAIN,
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 10 * 60 * 1000
+    });
+    
+  }
+  else{
+    res.cookie('email', encodeURIComponent(email),
+    { 
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 10 * 60 * 1000
+    });
+
+  }
   res.send({message : "OTP sent successfully"});
 }
 const verifyOTP = async (req, res) => {
@@ -237,12 +299,24 @@ const changePassword = async (req, res) => {
   }
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   await pool.query('UPDATE users SET password_hash = $1, reset_token = null WHERE reset_token = $2', [hashedPassword, resetToken]);
-  res.clearCookie('email', {
-    httpOnly: false,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    path: '/',
-  });
+  if (process.env.DOMAIN) {
+    res.clearCookie('email', {
+      domain: process.env.DOMAIN,
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+  }
+  else{
+    res.clearCookie('email', {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+    });
+
+  }
   res.clearCookie('resetToken', {
     httpOnly: true,
     secure: isProduction,

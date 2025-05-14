@@ -116,12 +116,23 @@ const deleteUser = async (req, res) => {
                 await pool.query("DELETE FROM users WHERE user_id = $1", [user_id]);
             }
             const isProduction = process.env.NODE_ENV === "PRODUCTION";
-            res.clearCookie('accessToken', {
-                httpOnly: false,
-                secure: isProduction,
-                sameSite: isProduction ? 'none' : 'lax',
-                path: '/',            // must match the path it was set with
-            });
+            if (process.env.DOMAIN) {
+                res.clearCookie('accessToken', {
+                    domain: process.env.DOMAIN ,
+                    httpOnly: false,
+                    secure: isProduction,
+                    sameSite: isProduction ? 'none' : 'lax',
+                    path: '/',            // must match the path it was set with
+                });  
+            }
+            else{
+                res.clearCookie('accessToken', {
+                    httpOnly: false,
+                    secure: isProduction,
+                    sameSite: isProduction ? 'none' : 'lax',
+                    path: '/',            // must match the path it was set with
+                });
+            }
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: isProduction,

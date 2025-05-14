@@ -55,12 +55,24 @@ app.get('/verify/:token', async (req, res) => {
       
       const refreshToken = jwt.sign({ user_id: user.user_id }, process.env.JWT_SECRET_REFRESH_TOKEN, {expiresIn: "7d"});
       
-      res.cookie('accessToken', accessToken, {
-        httpOnly: false,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
-        maxAge: 15 * 60 * 1000 // 15 minutes
-      })
+      if(process.env.DOMAIN){
+        res.cookie('accessToken', accessToken, {
+          domain: process.env.DOMAIN,
+          httpOnly: false,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+          maxAge: 15 * 60 * 1000 // 15 minutes
+        })
+      }
+      else{
+        res.cookie('accessToken', accessToken, {
+          httpOnly: false,
+          secure: isProduction,
+          sameSite: isProduction ? 'none' : 'lax',
+          maxAge: 15 * 60 * 1000 // 15 minutes
+        })
+      }
+      
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: isProduction,
