@@ -244,7 +244,7 @@ const sendOTP = async (req, res) => {
   if (result.rows[0].auth_provider === 'google'){
     return res.status(403).send("User not registered with this method");
   }
-  sendOTPMail(email);
+  await sendOTPMail(email);
   if (process.env.DOMAIN) {
     res.cookie('email',email,
     { 
