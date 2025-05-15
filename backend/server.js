@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 const authMiddleware = require("./middleware/authMiddleware");
 const courseRoutes = require("./routes/courseRoutes");
 app.use(cors({
-  origin: [process.env.CLIENT_URL, process.env.CLIENT_URL1].filter(Boolean),
+  origin: process.env.CLIENT_URL,
   credentials: true
 }));
 
